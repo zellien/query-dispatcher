@@ -24,17 +24,21 @@ final class QueryDispatcherFactory {
      */
     public function __invoke(ContainerInterface $container): QueryDispatcherInterface {
         $config = $container->get('config');
+        $relations = $config['query_dispatcher']['relations'] ?? [];
         $factories = $config['query_dispatcher']['factories'] ?? [];
         $resolver = new HandlerResolver();
-        foreach ($factories as $queryName => $factory) {
-            // If invokable factory
-            if ($factory instanceof HandlerFactoryInterface) {
-                $factory = new $factory();
-            }
-            // Attach handler
-            if (is_callable($factory)) {
-                $handler = call_user_func($factory, $container);
-                $resolver->attach($queryName, $handler);
+        foreach ($relations as $query => $handler) {
+            if (is_string($handler) && class_exists($handler) && isset($factories[$handler])) {
+                $factory = $factories[$handler];
+                // If invokable factory
+                if (is_a($factory, HandlerFactoryInterface::class, true)) {
+                    $factory = new $factory();
+                }
+                // Attach handler
+                if (is_callable($factory)) {
+                    $handler = call_user_func($factory, $container);
+                    $resolver->attach($query, $handler);
+                }
             }
         }
         return new QueryDispatcher($resolver);
