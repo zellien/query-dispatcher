@@ -15,7 +15,7 @@ interface HandlerInterface {
     /**
      * Handles the received query
      * @param QueryInterface $query
-     * @return mixed|void
+     * @return mixed
      */
     public function handle(QueryInterface $query);
 
