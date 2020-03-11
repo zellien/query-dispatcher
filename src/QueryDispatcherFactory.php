@@ -36,7 +36,7 @@ final class QueryDispatcherFactory {
                 }
                 // Attach handler
                 if (is_callable($factory)) {
-                    $handler = call_user_func($factory, $container);
+                    $handler = call_user_func($factory, $container, $handler);
                     $resolver->attach($query, $handler);
                 }
             }
